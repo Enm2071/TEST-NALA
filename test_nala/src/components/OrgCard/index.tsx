@@ -11,21 +11,27 @@ import SaveIcon from '@mui/icons-material/Save';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 type OrgCardProps = {
+    id: number;
     title: string;
-}
+    addChild: (parentId: number) => void;
+};
+
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const OrgCard = (props: OrgCardProps) => {
-    const { title } = props;
+    const { title, id, addChild } = props;
     const [checked, setChecked] = React.useState(true);
+
     return (
-        <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-            gap: 10,
-        }}>
+        <div
+            id={id.toString()}
+            style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column',
+                gap: 10,
+            }}>
             <Card sx={{
                 minWidth: 325,
                 minHeight: 350,
@@ -34,8 +40,7 @@ const OrgCard = (props: OrgCardProps) => {
                 justifyContent: 'space-between',
             }}>
                 <CardHeader
-                    avatar={<Checkbox {...label} checked={checked} onChange={() => setChecked(!checked)}
-                    />}
+                    avatar={<Checkbox {...label} checked={checked} onChange={() => setChecked(!checked)} />}
                     action={
                         <IconButton aria-label="settings">
                             <MoreVertIcon />
@@ -52,14 +57,8 @@ const OrgCard = (props: OrgCardProps) => {
                     }}>
                         {title}
                     </Typography>
-                    <Typography variant="h5" component="div">
-
-                    </Typography>
-                    <Typography sx={{ color: 'text.secondary', mb: 1.5 }}>adjective</Typography>
                     <Typography variant="body2">
-                        well meaning and kindly.
-                        <br />
-                        {'"a benevolent smile"'}
+                        Example content for the OrgCard.
                     </Typography>
                 </CardContent>
                 <CardActions sx={{
@@ -75,17 +74,13 @@ const OrgCard = (props: OrgCardProps) => {
                     <IconButton aria-label="delete">
                         <DeleteIcon />
                     </IconButton>
-
                 </CardActions>
             </Card>
-            <IconButton aria-label="add">
-                <AddCircleOutlineIcon color="primary" sx={{
-                    fontSize: 50
-                }} />
+            <IconButton aria-label="add" onClick={() => addChild(id)}>
+                <AddCircleOutlineIcon color="primary" sx={{ fontSize: 50 }} />
             </IconButton>
         </div>
-    )
-
-}
+    );
+};
 
 export default OrgCard;
