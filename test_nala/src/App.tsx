@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
 import ZoomControls from './components/zoomControls';
 import { TextField } from '@mui/material';
@@ -31,16 +31,11 @@ const App = () => {
 
   const sortedLevels = getSortedLevels();
   const numLevels = sortedLevels.length;
-  const maxNodesInAnyLevel = sortedLevels.reduce(
-    (acc, [_, nodes]) => Math.max(acc, nodes.length),
-    0
-  );
-  const dynamicWidth =
-    maxNodesInAnyLevel * (CARD_WIDTH + HORIZONTAL_GAP) + EXTRA_OFFSET;
-  const dynamicHeight =
-    numLevels * (CARD_HEIGHT + VERTICAL_MARGIN_BETWEEN_TIERS) + EXTRA_OFFSET;
+  const maxNodesInAnyLevel = sortedLevels.reduce((acc, [_, nodes]) => Math.max(acc, nodes.length), 0);
+  const dynamicWidth = maxNodesInAnyLevel * (CARD_WIDTH + HORIZONTAL_GAP) + EXTRA_OFFSET;
+  const dynamicHeight = numLevels * (CARD_HEIGHT + VERTICAL_MARGIN_BETWEEN_TIERS) + EXTRA_OFFSET;
 
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = React.useState(1);
 
   const zoomIn = () => setScale(prev => prev * 1.2);
   const zoomOut = () => setScale(prev => prev / 1.2);
@@ -70,20 +65,26 @@ const App = () => {
                   autoFocus
                 />
               ) : (
-                <p onClick={() => handleStartEditingTier(level)}>
-                  {getTierName(level)}
-                </p>
+                <p onClick={() => handleStartEditingTier(level)}>{getTierName(level)}</p>
               )}
             </div>
             <div className="level-row">
-              {nodesAtThisLevel.map(node => (
-                <OrgCard
-                  key={node.id}
-                  id={node.id}
-                  title={node.title}
-                  addChild={() => handleAddCard(node.id)}
-                  deleteCard={() => handleOpenModal(node.id)}
-                />
+              {nodesAtThisLevel.map((node, index) => (
+                <React.Fragment key={node.id}>
+                  <div id={`card-${node.id}`} style={{ position: 'relative' }}>
+                    <OrgCard
+                      id={node.id}
+                      title={node.title}
+                      addChild={() => handleAddCard(node.id)}
+                      deleteCard={() => handleOpenModal(node.id)}
+                    />
+                  </div>
+                  {index < nodesAtThisLevel.length - 1 &&
+                    node.children.length > 0 &&
+                    nodesAtThisLevel[index + 1].children.length > 0 && (
+                      <div className="divider" />
+                    )}
+                </React.Fragment>
               ))}
             </div>
           </div>
