@@ -3,15 +3,35 @@ import OrgCard from './components/OrgCard';
 import './App.css';
 import { CardNode, assignLevels, removeCardRecursively } from './helpers/cards';
 import CardDeleteConfirmationModal from './components/dialogs/CardDeleteConfirmationModal';
+import { TextField } from '@mui/material';
 
 const App = () => {
-
   const [cards, setCards] = useState<CardNode[]>([
     { id: 1, title: 'Root Node', children: [] },
   ]);
-
   const [openModal, setOpenModal] = useState(false);
   const [cardIdToDelete, setCardIdToDelete] = useState<number | null>(null);
+  const [tierNames, setTierNames] = useState<{ [level: number]: string }>({});
+  const [editingTier, setEditingTier] = useState<number | null>(null);
+
+  const getTierName = (level: number) => {
+    return tierNames[level] ?? `TIER ${level + 1}`;
+  };
+
+  const handleTierNameChange = (level: number, newName: string) => {
+    setTierNames(prev => ({
+      ...prev,
+      [level]: newName,
+    }));
+  };
+
+  const handleStartEditingTier = (level: number) => {
+    setEditingTier(level);
+  };
+
+  const handleStopEditingTier = () => {
+    setEditingTier(null);
+  };
 
   const handleOpenModal = (id: number) => {
     setCardIdToDelete(id);
@@ -60,7 +80,6 @@ const App = () => {
 
   const levelsMap = new Map<number, CardNode[]>();
   assignLevels(cards, 0, levelsMap);
-
   const sortedLevels = Array.from(levelsMap.entries()).sort(
     ([levelA], [levelB]) => levelA - levelB
   );
@@ -68,19 +87,34 @@ const App = () => {
   return (
     <div className="app">
       {sortedLevels.map(([level, nodesAtThisLevel]) => (
-        <div key={level} className="level-row">
-          {nodesAtThisLevel.map(node => (
-            <OrgCard
-              key={node.id}
-              id={node.id}
-              title={node.title}
-              addChild={() => handleAddCard(node.id)}
-              deleteCard={() => handleOpenModal(node.id)}
-            />
-          ))}
+        <div key={level} className="tier-row">
+          <div className="tier-label">
+            {editingTier === level ? (
+              <TextField
+                value={getTierName(level)}
+                onChange={(e) => handleTierNameChange(level, e.target.value)}
+                onBlur={handleStopEditingTier}
+                autoFocus
+              />
+            ) : (
+              <p onClick={() => handleStartEditingTier(level)}>
+                {getTierName(level)}
+              </p>
+            )}
+          </div>
+          <div className="level-row">
+            {nodesAtThisLevel.map(node => (
+              <OrgCard
+                key={node.id}
+                id={node.id}
+                title={node.title}
+                addChild={() => handleAddCard(node.id)}
+                deleteCard={() => handleOpenModal(node.id)}
+              />
+            ))}
+          </div>
         </div>
       ))}
-
       <CardDeleteConfirmationModal
         openModal={openModal}
         handleCloseModal={handleCloseModal}

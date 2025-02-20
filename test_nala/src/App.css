@@ -26,3 +26,30 @@
   background-color: #000;
   margin: 0 100px;
 }
+
+.tier-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 80px;
+  border-bottom: 1px solid #ccc;
+  position: relative;
+}
+
+.tier-label {
+  margin-left: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #555;
+}
+
+.level-row {
+  display: flex;
+  flex-direction: row;
+  gap: 50px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 250px;
+}
