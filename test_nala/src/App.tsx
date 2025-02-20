@@ -1,126 +1,78 @@
-import React, { useState } from 'react';
-import OrgCard from './components/OrgCard';
+import React from 'react';
 import './App.css';
-import { CardNode, assignLevels, removeCardRecursively } from './helpers/cards';
-import CardDeleteConfirmationModal from './components/dialogs/CardDeleteConfirmationModal';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import ZoomControls from './components/zoomControls';
 import { TextField } from '@mui/material';
+import CardDeleteConfirmationModal from './components/dialogs/CardDeleteConfirmationModal';
+import OrgCard from './components/OrgCard';
+import { useOrgCard } from './hooks/useOrgCard';
+import { CARD_HEIGHT, CARD_WIDTH, EXTRA_OFFSET, HORIZONTAL_GAP, VERTICAL_MARGIN_BETWEEN_TIERS } from './constant/card';
 
 const App = () => {
-  const [cards, setCards] = useState<CardNode[]>([
-    { id: 1, title: 'Root Node', children: [] },
-  ]);
-  const [openModal, setOpenModal] = useState(false);
-  const [cardIdToDelete, setCardIdToDelete] = useState<number | null>(null);
-  const [tierNames, setTierNames] = useState<{ [level: number]: string }>({});
-  const [editingTier, setEditingTier] = useState<number | null>(null);
+  const {
+    openModal,
+    editingTier,
+    getTierName,
+    handleTierNameChange,
+    handleStartEditingTier,
+    handleStopEditingTier,
+    handleOpenModal,
+    handleCloseModal,
+    handleConfirmDelete,
+    handleAddCard,
+    getSortedLevels
+  } = useOrgCard();
 
-  const getTierName = (level: number) => {
-    return tierNames[level] ?? `TIER ${level + 1}`;
-  };
-
-  const handleTierNameChange = (level: number, newName: string) => {
-    setTierNames(prev => ({
-      ...prev,
-      [level]: newName,
-    }));
-  };
-
-  const handleStartEditingTier = (level: number) => {
-    setEditingTier(level);
-  };
-
-  const handleStopEditingTier = () => {
-    setEditingTier(null);
-  };
-
-  const handleOpenModal = (id: number) => {
-    setCardIdToDelete(id);
-    setOpenModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setCardIdToDelete(null);
-  };
-
-  const handleConfirmDelete = () => {
-    if (cardIdToDelete !== null) {
-      handleDeleteCard(cardIdToDelete);
-    }
-    handleCloseModal();
-  };
-
-  const handleAddCard = (parentId: number) => {
-    setCards(prevCards => {
-      const addCardRecursively = (nodes: CardNode[]): CardNode[] => {
-        return nodes.map(node => {
-          if (node.id === parentId) {
-            if (node.children.length >= 3) {
-              alert('Este padre ya tiene 3 hijos. No se pueden agregar más.');
-              return node;
-            }
-            return {
-              ...node,
-              children: [
-                ...node.children,
-                { id: Date.now(), title: 'New Card', children: [] },
-              ],
-            };
-          }
-          return { ...node, children: addCardRecursively(node.children) };
-        });
-      };
-      return addCardRecursively(prevCards);
-    });
-  };
-
-  const handleDeleteCard = (cardId: number) => {
-    setCards(prevCards => removeCardRecursively(prevCards, cardId));
-  };
-
-  const levelsMap = new Map<number, CardNode[]>();
-  assignLevels(cards, 0, levelsMap);
-  const sortedLevels = Array.from(levelsMap.entries()).sort(
-    ([levelA], [levelB]) => levelA - levelB
-  );
+  const sortedLevels = getSortedLevels();
+  const numLevels = sortedLevels.length;
+  const maxNodesInAnyLevel = sortedLevels.reduce((acc, [_, nodes]) => Math.max(acc, nodes.length), 0);
+  const dynamicWidth = maxNodesInAnyLevel * (CARD_WIDTH + HORIZONTAL_GAP) + EXTRA_OFFSET;
+  const dynamicHeight = numLevels * (CARD_HEIGHT + VERTICAL_MARGIN_BETWEEN_TIERS) + EXTRA_OFFSET;
 
   return (
-    <div className="app">
-      {sortedLevels.map(([level, nodesAtThisLevel]) => (
-        <div key={level} className="tier-row">
-          <div className="tier-label">
-            {editingTier === level ? (
-              <TextField
-                value={getTierName(level)}
-                onChange={(e) => handleTierNameChange(level, e.target.value)}
-                onBlur={handleStopEditingTier}
-                autoFocus
+    <TransformWrapper initialScale={1} initialPositionX={0} initialPositionY={0} limitToBounds={false}>
+      {({ zoomIn, zoomOut, resetTransform }) => (
+        <>
+          <ZoomControls zoomIn={zoomIn} zoomOut={zoomOut} resetTransform={resetTransform} />
+          <TransformComponent>
+            <div className="app" style={{ minWidth: dynamicWidth, minHeight: dynamicHeight, backgroundColor: '#fff' }}>
+              {sortedLevels.map(([level, nodesAtThisLevel]) => (
+                <div key={level} className="tier-row">
+                  <div className="tier-label">
+                    {editingTier === level ? (
+                      <TextField
+                        value={getTierName(level)}
+                        onChange={e => handleTierNameChange(level, e.target.value)}
+                        onBlur={handleStopEditingTier}
+                        autoFocus
+                      />
+                    ) : (
+                      <p onClick={() => handleStartEditingTier(level)}>{getTierName(level)}</p>
+                    )}
+                  </div>
+                  <div className="level-row">
+                    {nodesAtThisLevel.map(node => (
+                      <OrgCard
+                        key={node.id}
+                        id={node.id}
+                        title={node.title}
+                        addChild={() => handleAddCard(node.id)}
+                        deleteCard={() => handleOpenModal(node.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <CardDeleteConfirmationModal
+                openModal={openModal}
+                handleCloseModal={handleCloseModal}
+                handleConfirmDelete={handleConfirmDelete}
               />
-            ) : (
-              <p onClick={() => handleStartEditingTier(level)}>
-                {getTierName(level)}
-              </p>
-            )}
-          </div>
-          <div className="level-row">
-            {nodesAtThisLevel.map(node => (
-              <OrgCard
-                key={node.id}
-                id={node.id}
-                title={node.title}
-                addChild={() => handleAddCard(node.id)}
-                deleteCard={() => handleOpenModal(node.id)}
-              />
-            ))}
-          </div>
-        </div>
-      ))}
-      <CardDeleteConfirmationModal
-        openModal={openModal}
-        handleCloseModal={handleCloseModal}
-        handleConfirmDelete={handleConfirmDelete}
-      />
-    </div>
+            </div>
+          </TransformComponent>
+        </>
+      )}
+    </TransformWrapper>
   );
 };
 
