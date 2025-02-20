@@ -7,6 +7,7 @@ import CardDeleteConfirmationModal from './components/dialogs/CardDeleteConfirma
 import OrgCard from './components/OrgCard';
 import { useOrgCard } from './hooks/useOrgCard';
 import { CARD_HEIGHT, CARD_WIDTH, EXTRA_OFFSET, HORIZONTAL_GAP, VERTICAL_MARGIN_BETWEEN_TIERS } from './constant/card';
+import { ToastContainer } from 'react-toastify';
 
 const App = () => {
   const {
@@ -69,9 +70,12 @@ const App = () => {
                 handleConfirmDelete={handleConfirmDelete}
               />
             </div>
+            
           </TransformComponent>
+          <ToastContainer />
         </>
       )}
+      
     </TransformWrapper>
   );
 };

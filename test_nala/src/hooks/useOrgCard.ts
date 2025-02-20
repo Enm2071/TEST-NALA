@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { CardNode, assignLevels, removeCardRecursively } from '../helpers/cards';
 import { useToastify } from './useToastify';
 
@@ -8,9 +8,13 @@ export function useOrgCard() {
   const [cardIdToDelete, setCardIdToDelete] = useState<number | null>(null);
   const [tierNames, setTierNames] = useState<{ [level: number]: string }>({});
   const [editingTier, setEditingTier] = useState<number | null>(null);
-  const {
-    notifyError,
-  } = useToastify();
+  const { notifyError } = useToastify();
+  const errorNotifiedRef = useRef(false);
+
+  useEffect(() => {
+    errorNotifiedRef.current = false;
+  });
+
   function getTierName(level: number) {
     return tierNames[level] ?? `TIER ${level + 1}`;
   }
@@ -50,10 +54,19 @@ export function useOrgCard() {
         return nodes.map(node => {
           if (node.id === parentId) {
             if (node.children.length >= 3) {
-              notifyError('Este padre ya tiene 3 hijos. No se pueden agregar más.');
+              if (!errorNotifiedRef.current) {
+                notifyError('Este padre ya tiene 3 hijos. No se pueden agregar más.');
+                errorNotifiedRef.current = true;
+              }
               return node;
             }
-            return { ...node, children: [...node.children, { id: Date.now(), title: 'New Card', children: [] }] };
+            return {
+              ...node,
+              children: [
+                ...node.children,
+                { id: Date.now(), title: 'New Card', children: [] }
+              ]
+            };
           }
           return { ...node, children: addCardRecursively(node.children) };
         });
@@ -87,6 +100,7 @@ export function useOrgCard() {
     handleConfirmDelete,
     handleAddCard,
     handleDeleteCard,
-    getSortedLevels
+    getSortedLevels,
+    setCards
   };
 }
