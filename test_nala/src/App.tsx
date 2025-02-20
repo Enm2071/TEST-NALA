@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
-import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import ZoomControls from './components/zoomControls';
 import { TextField } from '@mui/material';
 import CardDeleteConfirmationModal from './components/dialogs/CardDeleteConfirmationModal';
 import OrgCard from './components/OrgCard';
 import { useOrgCard } from './hooks/useOrgCard';
-import { CARD_HEIGHT, CARD_WIDTH, EXTRA_OFFSET, HORIZONTAL_GAP, VERTICAL_MARGIN_BETWEEN_TIERS } from './constant/card';
 import { ToastContainer } from 'react-toastify';
+import {
+  CARD_HEIGHT,
+  CARD_WIDTH,
+  EXTRA_OFFSET,
+  HORIZONTAL_GAP,
+  VERTICAL_MARGIN_BETWEEN_TIERS
+} from './constant/card';
 
 const App = () => {
   const {
@@ -26,57 +31,71 @@ const App = () => {
 
   const sortedLevels = getSortedLevels();
   const numLevels = sortedLevels.length;
-  const maxNodesInAnyLevel = sortedLevels.reduce((acc, [_, nodes]) => Math.max(acc, nodes.length), 0);
-  const dynamicWidth = maxNodesInAnyLevel * (CARD_WIDTH + HORIZONTAL_GAP) + EXTRA_OFFSET;
-  const dynamicHeight = numLevels * (CARD_HEIGHT + VERTICAL_MARGIN_BETWEEN_TIERS) + EXTRA_OFFSET;
+  const maxNodesInAnyLevel = sortedLevels.reduce(
+    (acc, [_, nodes]) => Math.max(acc, nodes.length),
+    0
+  );
+  const dynamicWidth =
+    maxNodesInAnyLevel * (CARD_WIDTH + HORIZONTAL_GAP) + EXTRA_OFFSET;
+  const dynamicHeight =
+    numLevels * (CARD_HEIGHT + VERTICAL_MARGIN_BETWEEN_TIERS) + EXTRA_OFFSET;
+
+  const [scale, setScale] = useState(1);
+
+  const zoomIn = () => setScale(prev => prev * 1.2);
+  const zoomOut = () => setScale(prev => prev / 1.2);
+  const resetTransform = () => setScale(1);
 
   return (
-    <TransformWrapper initialScale={1} initialPositionX={0} initialPositionY={0} limitToBounds={false}>
-      {({ zoomIn, zoomOut, resetTransform }) => (
-        <>
-          <ZoomControls zoomIn={zoomIn} zoomOut={zoomOut} resetTransform={resetTransform} />
-          <TransformComponent>
-            <div className="app" style={{ minWidth: dynamicWidth, minHeight: dynamicHeight, backgroundColor: '#fff' }}>
-              {sortedLevels.map(([level, nodesAtThisLevel]) => (
-                <div key={level} className="tier-row">
-                  <div className="tier-label">
-                    {editingTier === level ? (
-                      <TextField
-                        value={getTierName(level)}
-                        onChange={e => handleTierNameChange(level, e.target.value)}
-                        onBlur={handleStopEditingTier}
-                        autoFocus
-                      />
-                    ) : (
-                      <p onClick={() => handleStartEditingTier(level)}>{getTierName(level)}</p>
-                    )}
-                  </div>
-                  <div className="level-row">
-                    {nodesAtThisLevel.map(node => (
-                      <OrgCard
-                        key={node.id}
-                        id={node.id}
-                        title={node.title}
-                        addChild={() => handleAddCard(node.id)}
-                        deleteCard={() => handleOpenModal(node.id)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-              <CardDeleteConfirmationModal
-                openModal={openModal}
-                handleCloseModal={handleCloseModal}
-                handleConfirmDelete={handleConfirmDelete}
-              />
+    <div>
+      <ZoomControls zoomIn={zoomIn} zoomOut={zoomOut} resetTransform={resetTransform} />
+      <div
+        className="app"
+        style={{
+          transform: `scale(${scale})`,
+          transformOrigin: '0 0',
+          minWidth: dynamicWidth,
+          minHeight: dynamicHeight,
+          backgroundColor: '#fff'
+        }}
+      >
+        {sortedLevels.map(([level, nodesAtThisLevel]) => (
+          <div key={level} className="tier-row" style={{ minHeight: '200px' }}>
+            <div className="tier-label">
+              {editingTier === level ? (
+                <TextField
+                  value={getTierName(level)}
+                  onChange={e => handleTierNameChange(level, e.target.value)}
+                  onBlur={handleStopEditingTier}
+                  autoFocus
+                />
+              ) : (
+                <p onClick={() => handleStartEditingTier(level)}>
+                  {getTierName(level)}
+                </p>
+              )}
             </div>
-            
-          </TransformComponent>
-          <ToastContainer />
-        </>
-      )}
-      
-    </TransformWrapper>
+            <div className="level-row">
+              {nodesAtThisLevel.map(node => (
+                <OrgCard
+                  key={node.id}
+                  id={node.id}
+                  title={node.title}
+                  addChild={() => handleAddCard(node.id)}
+                  deleteCard={() => handleOpenModal(node.id)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+        <CardDeleteConfirmationModal
+          openModal={openModal}
+          handleCloseModal={handleCloseModal}
+          handleConfirmDelete={handleConfirmDelete}
+        />
+      </div>
+      <ToastContainer />
+    </div>
   );
 };
 
