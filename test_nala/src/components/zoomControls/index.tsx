@@ -3,8 +3,7 @@ import { IconButton } from '@mui/material';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-
-import './zoomControls.css';
+import styled from '@emotion/styled';
 
 type ZoomControlsProps = {
   zoomIn: () => void;
@@ -12,19 +11,33 @@ type ZoomControlsProps = {
   resetTransform: () => void;
 };
 
+const ZoomControlsContainer = styled.div`
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #fff;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+`;
+
 const ZoomControls: FC<ZoomControlsProps> = ({ zoomIn, zoomOut, resetTransform }) => {
   return (
-    <div className="zoom-controls">
-      <IconButton onClick={() => zoomIn()}>
+    <ZoomControlsContainer>
+      <IconButton onClick={zoomIn}>
         <ZoomInIcon />
       </IconButton>
-      <IconButton onClick={() => zoomOut()}>
+      <IconButton onClick={zoomOut}>
         <ZoomOutIcon />
       </IconButton>
-      <IconButton onClick={() => resetTransform()}>
+      <IconButton onClick={resetTransform}>
         <RestartAltIcon />
       </IconButton>
-    </div>
+    </ZoomControlsContainer>
   );
 };
 
