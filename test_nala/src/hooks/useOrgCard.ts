@@ -22,7 +22,6 @@ export function useOrgCard() {
         const data: CardNode[] = await response.json();
         setCards(data);
       } catch (error) {
-        console.error('❌ Error al obtener nodos:', error);
         notifyError('Error al cargar los nodos.');
       }
     };
@@ -54,21 +53,19 @@ export function useOrgCard() {
       notifySuccess('Título actualizado correctamente.');
     }
     catch (error) {
-      console.error('❌ Error al actualizar el título del nodo:', error);
       notifyError('No se pudo actualizar el título del nodo.');
     }
   }
 
   async function editNodeDescription(id: string, newDescription: string) {
     try {
-      await fetch(`${API_URL}/orgCards/${id}/description`, {
+      await fetch(`${API_URL}/orgCards/add/description/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ description: newDescription }),
       });
     }
     catch (error) {
-      console.error('❌ Error al actualizar la descripción del nodo:', error);
       notifyError('No se pudo actualizar la descripción del nodo.');
     }
   }
@@ -152,7 +149,6 @@ export function useOrgCard() {
       setCards(prevCards => removeCardRecursively(prevCards, cardId));
       notifySuccess('Nodo y sus hijos eliminados correctamente.');
     } catch (error) {
-      console.error('❌ Error al eliminar el nodo:', error);
       notifyError('No se pudo eliminar el nodo.');
     }
   }

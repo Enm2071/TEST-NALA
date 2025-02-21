@@ -7,12 +7,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Typography from "@mui/material/Typography";
 import { CardHeader, Checkbox, IconButton, TextField } from "@mui/material";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
-import SaveIcon from "@mui/icons-material/Save";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import PeopleIcon from "@mui/icons-material/People";
 import CardH from "./cardHeader";
 import MoreMenu from "../moreMenu";
-import { API_URL } from "../../libs/config";
 import { useToastify } from "../../hooks/useToastify";
 import OrgCardSkeleton from "./skeleton";
 import EmployeeModal from "../dialogs/EmployeeModal";
@@ -132,7 +130,7 @@ const OrgCard = (props: OrgCardProps) => {
     try {
       await editTitle(id, editedTitle);
     } catch (error) {
-      console.error(error);
+      notifyError("No se pudo actualizar el título del nodo.");
     }
   };
 
@@ -142,7 +140,7 @@ const OrgCard = (props: OrgCardProps) => {
     try {
       await editDescription(id, editedDescription);
     } catch (error) {
-      console.error(error);
+      notifyError("No se pudo actualizar la descripción del nodo.");
     }
   };
 
@@ -157,7 +155,7 @@ const OrgCard = (props: OrgCardProps) => {
       }
       addEmployee(name);
     } catch (error) {
-      console.error(error);
+      notifyError("No se pudo agregar el empleado");
     }
   };
 
@@ -209,9 +207,6 @@ const OrgCard = (props: OrgCardProps) => {
           </EmployeeContainer>
         </CardContent>
         <StyledCardActions>
-          <IconButton aria-label="save" onClick={handleTitleBlur}>
-            <SaveIcon />
-          </IconButton>
           {!isRoot && (
             <IconButton aria-label="delete" onClick={() => deleteCard(id)}>
               <DeleteIcon />

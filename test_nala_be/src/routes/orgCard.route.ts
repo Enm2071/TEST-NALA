@@ -9,7 +9,6 @@ router.post('/', async (req: Request, res: Response) => {
     const node = await orgCardServices.createNode(req.body);
     res.status(201).json(node);
   } catch (error) {
-    console.error('Error al crear nodo:', error);
     res.status(500).json({ error: 'Error al crear el nodo' });
   }
 });
@@ -19,7 +18,6 @@ router.get('/', async (_req: Request, res: Response) => {
     const nodes = await orgCardServices.getAllNodes();
     res.status(200).json(nodes);
   } catch (error) {
-    console.error('Error al obtener nodos:', error);
     res.status(500).json({ error: 'Error al obtener los nodos' });
   }
 });
@@ -43,7 +41,6 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     res.status(200).json(updatedNode);
   } catch (error) {
-    console.error('❌ Error al reemplazar el nodo:', error);
     res.status(500).json({ error: 'Error al reemplazar el nodo.' });
   }
 });
@@ -60,19 +57,18 @@ router.put('/:id/:title', async (req: Request, res: Response) => {
 
     res.status(200).json(updatedNode);
   } catch (error) {
-    console.error('❌ Error al actualizar el título del nodo:', error);
     res.status(500).json({ error: 'Error al actualizar el título del nodo.' });
   }
 });
 
-router.put('/:id/description', async (req: Request, res: Response) => {
+router.put('/add/description/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { description } = req.body;
 
     await orgCardServices.updateNodeDescription(id, description);
+    res.status(200).json({ message: 'Descripción actualizada correctamente' });
   } catch (error) {
-    console.error('❌ Error al obtener la descripción del nodo:', error);
     res.status(500).json({ error: 'Error al obtener la descripción del nodo.' });
   }
 });
@@ -94,7 +90,6 @@ router.delete('/delete/:id', async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'Nodo y sus hijos eliminados correctamente' });
   } catch (error) {
-    console.error('Error al eliminar nodo:', error);
     res.status(500).json({ error: 'No se pudo eliminar el nodo' });
   }
 });

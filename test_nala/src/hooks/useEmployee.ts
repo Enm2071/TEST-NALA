@@ -20,7 +20,6 @@ export const useEmployees = (nodeId: string) => {
       const data = await response.json();
       setEmployees(data.map((emp: any) => ({ id: emp._id, name: emp.name })));
     } catch (error) {
-      console.error(error);
       notifyError("Error al cargar empleados");
     } finally {
       setLoading(false);
@@ -45,7 +44,7 @@ export const useEmployees = (nodeId: string) => {
       const data = await response.json();
       setEmployees([...employees, { id: data._id, name: data.name }]);
     } catch (error) {
-      console.error(error);
+      notifyError("No se pudo agregar el empleado");
     }
   };
 

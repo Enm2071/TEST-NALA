@@ -33,7 +33,6 @@ const useTiers = (numLevels: number) => {
 
                 setTierNames(data);
             } catch (error) {
-                console.error('❌ Error fetching tier names:', error);
                 notifyError('Error fetching tier names.');
             }
         }
@@ -58,11 +57,8 @@ const useTiers = (numLevels: number) => {
                     throw new Error(`Error en la API: ${response.status}`);
                 }
             } catch (error) {
-                console.error('❌ Error deleting tier:', error);
                 notifyError('Error deleting tier.');
-
             }
-
         }
 
         if (numLevels < tiersLevels) {
@@ -111,7 +107,6 @@ const useTiers = (numLevels: number) => {
 
             setEditingTier(null);
         } catch (error) {
-            console.error('❌ Error updating tier title:', error);
             notifyError('Error updating tier title.');
         }
     }

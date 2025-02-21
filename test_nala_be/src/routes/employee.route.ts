@@ -12,7 +12,6 @@ router.post("/", async (req, res) => {
     const newEmployee = await createEmployee(name, nodeId);
     res.status(201).json(newEmployee);
   } catch (error) {
-    console.error("❌ Error al crear empleado:", error);
     res.status(500).json({ error: "Error interno del servidor." });
   }
 });
@@ -22,7 +21,6 @@ router.get("/:nodeId", async (req, res) => {
     const employees = await getEmployeesByNode(req.params.nodeId);
     res.json(employees);
   } catch (error) {
-    console.error("❌ Error al obtener empleados del nodo:", error);
     res.status(500).json({ error: "Error interno del servidor." });
   }
 });
