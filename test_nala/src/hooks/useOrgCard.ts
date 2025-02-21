@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { CardNode, assignLevels, removeCardRecursively } from '../helpers/cards';
 import { useToastify } from './useToastify';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1/orgCards';
+
 export function useOrgCard() {
-  const [cards, setCards] = useState<CardNode[]>([{ id: 1, title: 'Root Node', children: [] }]);
+  const [cards, setCards] = useState<CardNode[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [cardIdToDelete, setCardIdToDelete] = useState<number | null>(null);
   const [tierNames, setTierNames] = useState<{ [level: number]: string }>({});
@@ -14,6 +16,24 @@ export function useOrgCard() {
   useEffect(() => {
     errorNotifiedRef.current = false;
   });
+
+  useEffect(() => {
+    const fetchNodes = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data: CardNode[] = await response.json();
+        setCards(data);
+      } catch (error) {
+        console.error('❌ Error al obtener nodos:', error);
+        notifyError('Error al cargar los nodos.');
+      }
+    };
+
+    fetchNodes();
+  }, []);
 
   function getTierName(level: number) {
     return tierNames[level] ?? `TIER ${level + 1}`;
