@@ -23,6 +23,7 @@ type OrgCardProps = {
   deleteCard: (id: string) => void;
   editTitle: (id: string, title: string) => void;
   root: string | undefined;
+  isRoot: boolean;
 };
 
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -76,7 +77,7 @@ type Employee = {
 };
 
 const OrgCard = (props: OrgCardProps) => {
-  const { title, id, addChild, deleteCard, editTitle, root } = props;
+  const { title, id, addChild, deleteCard, editTitle, root, isRoot } = props;
   const [checked, setChecked] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
@@ -96,7 +97,6 @@ const OrgCard = (props: OrgCardProps) => {
         notifyError("No se pueden agregar más de 3 empleados");
         return;
       }
-
       const response = await fetch(`${API_URL}/employees`, {
         method: "POST",
         headers: {
@@ -197,9 +197,9 @@ const OrgCard = (props: OrgCardProps) => {
           <IconButton aria-label="save" onClick={() => editTitle(id, editedTitle)}>
             <SaveIcon />
           </IconButton>
-          <IconButton aria-label="delete" onClick={() => deleteCard(id)}>
+          {!isRoot ? <IconButton aria-label="delete" onClick={() => deleteCard(id)}>
             <DeleteIcon />
-          </IconButton>
+          </IconButton> : null}
         </StyledCardActions>
       </StyledCard>
 

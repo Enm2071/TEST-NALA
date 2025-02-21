@@ -84,6 +84,7 @@ const App = () => {
                       deleteCard={handleOpenModal}
                       editTitle={editNodeTitle}
                       root={getOneLevelUp(node._id!)?.title}
+                      isRoot={!!node.root}
                     />
                   </div>
                   {index < nodesAtThisLevel.length - 1 &&
