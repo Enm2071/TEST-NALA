@@ -8,11 +8,13 @@ import Typography from "@mui/material/Typography";
 import { CardHeader, Checkbox, IconButton, TextField } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import PeopleIcon from "@mui/icons-material/People";
 import CardH from "./cardHeader";
 import MoreMenu from "../moreMenu";
 import { API_URL } from "../../libs/config";
 import { useToastify } from "../../hooks/useToastify";
 import OrgCardSkeleton from "./skeleton";
+import EmployeeModal from "../dialogs/EmployeeModal";
 
 type OrgCardProps = {
   id: string;
@@ -58,14 +60,20 @@ const EmployeeTitle = styled(Typography)`
   font-weight: bold;
   line-height: 1.2;
   letter-spacing: 0.1em;
-  color: #000;  
+  color: #3f51b5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 type Employee = {
   id: string;
   name: string;
 };
-
 
 const OrgCard = (props: OrgCardProps) => {
   const { title, id, addChild, deleteCard, editTitle, root } = props;
@@ -74,18 +82,17 @@ const OrgCard = (props: OrgCardProps) => {
   const [editedTitle, setEditedTitle] = useState(title);
   const [loading, setLoading] = useState(false);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [openModal, setOpenModal] = useState(false);
   const { notifyError } = useToastify();
-  const handleTitleClick = () => {
-    setIsEditing(true);
-  };
 
-  const handleTitleBlur = () => {
-    setIsEditing(false);
-  };
+  const handleTitleClick = () => setIsEditing(true);
+  const handleTitleBlur = () => setIsEditing(false);
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => setOpenModal(false);
 
   const handleAddEmployee = async (name: string) => {
     try {
-      if(employees.length >= 3) {
+      if (employees.length >= 3) {
         notifyError("No se pueden agregar más de 3 empleados");
         return;
       }
@@ -99,11 +106,11 @@ const OrgCard = (props: OrgCardProps) => {
       });
       const data = await response.json();
       setEmployees([...employees, { id: data._id, name: data.name }]);
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
     }
   };
+
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -121,15 +128,15 @@ const OrgCard = (props: OrgCardProps) => {
         notifyError("Error al cargar empleados");
       } finally {
         setLoading(false);
-      };
-    }
+      }
+    };
+
     fetchEmployees();
-  }, []);
+  }, [id]);
 
   if (loading) {
-    return <OrgCardSkeleton />
+    return <OrgCardSkeleton />;
   }
-
 
   return (
     <Container id={id?.toString()}>
@@ -146,7 +153,6 @@ const OrgCard = (props: OrgCardProps) => {
           title={<CardH root={root} />}
         />
         <CardContent>
-
           {isEditing ? (
             <TextField
               value={editedTitle}
@@ -169,21 +175,22 @@ const OrgCard = (props: OrgCardProps) => {
               {editedTitle}
             </Typography>
           )}
-          <Typography variant="body2" sx={{
-            maxWidth: 300,
-          }}>
-            Card description goes here. This is a longer description of the card
+          <Typography variant="body2" sx={{ maxWidth: 300 }}>
+            Card description goes here. This is a longer description of the card.
           </Typography>
-          <div style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            padding: "10px",
-            marginTop: "20px",
-          }}>
-            <EmployeeTitle variant="h6">Empleados</EmployeeTitle>
-            {employees.length} de 3.
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              padding: "10px",
+              marginTop: "20px",
+            }}
+          >
+            <EmployeeTitle variant="h6" onClick={handleOpenModal}>
+              <PeopleIcon /> Empleados ({employees.length} de 3)
+            </EmployeeTitle>
           </div>
         </CardContent>
         <StyledCardActions>
@@ -199,6 +206,8 @@ const OrgCard = (props: OrgCardProps) => {
       <IconButton aria-label="add" onClick={() => addChild(id, "Nuevo Empleado")}>
         <AddIcon color="primary" />
       </IconButton>
+
+      <EmployeeModal open={openModal} employees={employees} onClose={handleCloseModal} />
     </Container>
   );
 };
