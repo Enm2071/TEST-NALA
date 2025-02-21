@@ -11,6 +11,7 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import CardH from "./cardHeader";
 import MoreMenu from "../moreMenu";
 import { API_URL } from "../../libs/config";
+import { useToastify } from "../../hooks/useToastify";
 
 type OrgCardProps = {
   id: string;
@@ -51,13 +52,28 @@ const AddIcon = styled(AddCircleOutlineIcon)`
   font-size: 50px;
 `;
 
+const EmployeeTitle = styled(Typography)`
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  color: #000;  
+`;
+
+type Employee = {
+  id: string;
+  name: string;
+};
+
 
 const OrgCard = (props: OrgCardProps) => {
   const { title, id, addChild, deleteCard, editTitle, root } = props;
   const [checked, setChecked] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
-
+  const [loading, setLoading] = useState(false);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const { notifyError } = useToastify();
   const handleTitleClick = () => {
     setIsEditing(true);
   };
@@ -68,6 +84,11 @@ const OrgCard = (props: OrgCardProps) => {
 
   const handleAddEmployee = async (name: string) => {
     try {
+      if(employees.length >= 3) {
+        notifyError("No se pueden agregar más de 3 empleados");
+        return;
+      }
+
       const response = await fetch(`${API_URL}/employees`, {
         method: "POST",
         headers: {
@@ -76,21 +97,38 @@ const OrgCard = (props: OrgCardProps) => {
         body: JSON.stringify({ name, nodeId: id }),
       });
       const data = await response.json();
-      console.log(data);
+      setEmployees([...employees, { id: data._id, name: data.name }]);
     }
     catch (error) {
       console.error(error);
     }
   };
-
   useEffect(() => {
     const fetchEmployees = async () => {
-      const response = await fetch(`${API_URL}/employees/${id}`); 
-      const data = await response.json();
-      console.log(data);
-    };
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}/employees/${id}`);
+        const data = await response.json();
+        const dataTransformed = data.map((employee: any) => ({
+          id: employee._id,
+          name: employee.name,
+        }));
+        setEmployees(dataTransformed);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+        notifyError("Error al cargar empleados");
+      } finally {
+        setLoading(false);
+      };
+    }
     fetchEmployees();
   }, []);
+
+  if (loading) {
+    return <div>Cargando...</div>;
+  }
+
 
   return (
     <Container id={id?.toString()}>
@@ -130,9 +168,22 @@ const OrgCard = (props: OrgCardProps) => {
               {editedTitle}
             </Typography>
           )}
-          <Typography variant="body2">
-            Example content for the OrgCard.
+          <Typography variant="body2" sx={{
+            maxWidth: 300,
+          }}>
+            Card description goes here. This is a longer description of the card
           </Typography>
+          <div style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            padding: "10px",
+            marginTop: "20px",
+          }}>
+            <EmployeeTitle variant="h6">Empleados</EmployeeTitle>
+            {employees.length} de 3.
+          </div>
         </CardContent>
         <StyledCardActions>
           <IconButton aria-label="save" onClick={() => editTitle(id, editedTitle)}>

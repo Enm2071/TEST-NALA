@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/node/:nodeId", async (req, res) => {
+router.get("/:nodeId", async (req, res) => {
   try {
     const employees = await getEmployeesByNode(req.params.nodeId);
     res.json(employees);

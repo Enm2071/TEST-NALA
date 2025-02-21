@@ -11,6 +11,7 @@ export const getEmployeeById = async (id: string) => {
 };
 
 export const getEmployeesByNode = async (nodeId: string) => {
+  console.log('nodeId', nodeId);
   return await Employee.find({ node: new mongoose.Types.ObjectId(nodeId) }).populate('node');
 };
 
