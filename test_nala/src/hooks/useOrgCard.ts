@@ -95,6 +95,36 @@ export function useOrgCard() {
     });
   }
 
+  useEffect(() => {
+    const hasChilds = cards.some(card => card.children.length > 0);
+  
+    if (hasChilds) {
+      const timeoutId = setTimeout(async () => {
+        try {
+          const rootId = cards.find(card => card.root)?._id;
+          const response = await fetch(`${API_URL}/${rootId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cards)
+          });
+  
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+        } catch (error) {
+          notifyError('Error al actualizar los nodos.');
+        }
+      }, 2000);
+  
+      return () => clearTimeout(timeoutId);
+    }
+  }, [cards]);
+
+  console.log('cards', cards);
+
   function handleDeleteCard(cardId: number) {
     setCards(prevCards => removeCardRecursively(prevCards, cardId));
   }

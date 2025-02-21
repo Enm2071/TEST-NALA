@@ -1,4 +1,6 @@
 interface CardNode {
+  _id?: string;
+  root?: boolean;
   id: number;
   title: string;
   children: CardNode[];

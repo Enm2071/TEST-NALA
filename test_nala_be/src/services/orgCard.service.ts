@@ -1,48 +1,45 @@
 import CardNode from '../models/orgCard.model';
 import { Types } from 'mongoose';
 
-/**
- * Crear un nuevo nodo
- * @param data Datos del nodo a crear
- * @returns Nodo creado
- */
 export const createNode = async (data: { id: number; title: string; children?: Types.ObjectId[] }) => {
   const node = new CardNode(data);
   return await node.save();
 };
 
-/**
- * Obtener todos los nodos
- * @returns Lista de nodos con sus hijos
- */
+
 export const getAllNodes = async () => {
-  return await CardNode.find().populate('children');
+  return await CardNode.find().populate('children').where('root').equals(true);
 };
 
-/**
- * Obtener un nodo por su ID
- * @param id ID del nodo
- * @returns Nodo encontrado o null si no existe
- */
+
 export const getNodeById = async (id: string) => {
   return await CardNode.findById(id).populate('children');
 };
 
-/**
- * Actualizar un nodo por su ID
- * @param id ID del nodo
- * @param data Datos a actualizar (título o hijos)
- * @returns Nodo actualizado o null si no existe
- */
-export const updateNode = async (id: string, data: { title?: string; children?: Types.ObjectId[] }) => {
-  return await CardNode.findByIdAndUpdate(id, data, { new: true }).populate('children');
+export const replaceNode = async (id: string, newData: any) => {
+  try {
+    const childNodes = await Promise.all(
+      newData.children.map(async (child: any) => {
+        if (!child._id) {
+          const newChild = new CardNode(child);
+          await newChild.save();
+          return newChild._id;
+        }
+        return new Types.ObjectId(child._id);
+      })
+    );
+
+    return await CardNode.findOneAndReplace(
+      { _id: new Types.ObjectId(id) },
+      { ...newData, children: childNodes },
+      { new: true }
+    );
+  } catch (error) {
+    console.error('❌ Error al reemplazar nodo:', error);
+    throw error;
+  }
 };
 
-/**
- * Eliminar un nodo por su ID
- * @param id ID del nodo
- * @returns Nodo eliminado o null si no existe
- */
 export const deleteNode = async (id: string) => {
   return await CardNode.findByIdAndDelete(id);
 };

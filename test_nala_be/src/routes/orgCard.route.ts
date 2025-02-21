@@ -1,11 +1,9 @@
 import { Router, Request, Response } from 'express';
 import * as orgCardServices from '../services/orgCard.service';
+import mongoose from 'mongoose';
 
 const router = Router();
 
-/**
- * Crear un nuevo nodo
- */
 router.post('/', async (req: Request, res: Response) => {
     try {
         const node = await orgCardServices.createNode(req.body);
@@ -16,9 +14,6 @@ router.post('/', async (req: Request, res: Response) => {
     }
 });
 
-/**
- * Obtener todos los nodos
- */
 router.get('/', async (_req: Request, res: Response) => {
     try {
         const nodes = await orgCardServices.getAllNodes();
@@ -29,17 +24,44 @@ router.get('/', async (_req: Request, res: Response) => {
     }
 });
 
-/**
- * Actualizar un nodo por ID
- */
 router.put('/:id', async (req: Request, res: Response) => {
     try {
-        const node = await orgCardServices.updateNode(req.params.id, req.body);
-        res.status(200).json(node);
+      const updatedNodeData = req.body[0];
+      const { id } = req.params;
+  
+      if (!updatedNodeData || typeof updatedNodeData !== 'object') {
+        throw new Error('Datos de nodo no válidos.');
+      }
+
+      updatedNodeData._id = new mongoose.Types.ObjectId(id);
+
+      const updatedNode = await orgCardServices.replaceNode(id, updatedNodeData);
+  
+      if (!updatedNode) {
+        throw new Error('Nodo no encontrado.');
+      }
+  
+      res.status(200).json(updatedNode);
     } catch (error) {
-        console.error('Error al actualizar nodo:', error);
-        res.status(500).json({ error: 'Error al actualizar el nodo' });
+      console.error('❌ Error al reemplazar el nodo:', error);
+      res.status(500).json({ error: 'Error al reemplazar el nodo.' });
     }
-});
+  });
+
+router.delete('/:id', async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const deletedNode = await orgCardServices.deleteNode(id);
+
+        if (!deletedNode) {
+            throw new Error('Nodo no encontrado.');
+        }
+
+        res.status(200).json(deletedNode);
+    } catch (error) {
+        console.error('❌ Error al eliminar el nodo:', error);
+        res.status(500).json({ error: 'Error al eliminar el nodo.' });
+    }
+})
 
 export default router;
