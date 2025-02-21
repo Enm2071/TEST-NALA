@@ -7,7 +7,9 @@ Copia y pega el siguiente script en tu terminal para ejecutar el Frontend y el B
 
 # --- Ejecutar Frontend ---
 echo "Iniciando el Frontend..."
-(cd test_nala && npm install && npm run dev) &
+cd test_nala
+npm install
+npm run dev
 
 # Espera unos segundos para que el Frontend se inicie
 
