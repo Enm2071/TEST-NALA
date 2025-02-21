@@ -1,4 +1,4 @@
-# Instrucciones para Ejecutar el Proyecto
+# Instrucciones para Ejecutar el Proyecto TEST NALA
 
 Copia y pega el siguiente script en tu terminal para ejecutar el Frontend y el Backend de forma conjunta:
 
