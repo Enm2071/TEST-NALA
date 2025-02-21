@@ -6,6 +6,7 @@ import CardContent from "@mui/material/CardContent";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Typography from "@mui/material/Typography";
 import { CardHeader, Checkbox, IconButton, TextField } from "@mui/material";
+import TextareaAutosize from "@mui/material/TextareaAutosize";
 import SaveIcon from "@mui/icons-material/Save";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import PeopleIcon from "@mui/icons-material/People";
@@ -15,15 +16,18 @@ import { API_URL } from "../../libs/config";
 import { useToastify } from "../../hooks/useToastify";
 import OrgCardSkeleton from "./skeleton";
 import EmployeeModal from "../dialogs/EmployeeModal";
+import { useEmployees } from "../../hooks/useEmployee";
 
 type OrgCardProps = {
   id: string;
   title: string;
   addChild: (parentId: string, name: string) => void;
   deleteCard: (id: string) => void;
-  editTitle: (id: string, title: string) => void;
+  editTitle: (id: string, title: string) => Promise<void>;
+  editDescription: (id: string, description: string) => Promise<void>;
   root: string | undefined;
   isRoot: boolean;
+  description?: string;
 };
 
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -90,18 +94,58 @@ const TitleText = styled(Typography)`
   cursor: pointer;
 `;
 
+const DescriptionText = styled(Typography)`
+  color: #6c757d;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-top: 8px;
+  cursor: pointer;
+`;
+
+const StyledTextarea = styled(TextareaAutosize)`
+  width: 100%;
+  font-size: 16px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+  &:focus {
+    outline: none;
+    border-color: #3f51b5;
+  }
+`;
+
 const OrgCard = (props: OrgCardProps) => {
-  const { title, id, addChild, deleteCard, editTitle, root, isRoot } = props;
+  const { title, id, addChild, deleteCard, editTitle, editDescription, root, isRoot, description } = props;
   const [checked, setChecked] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
-  const [loading, setLoading] = useState(false);
-  const [employees, setEmployees] = useState<{ id: string; name: string }[]>([]);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [editedDescription, setEditedDescription] = useState(description || "");
   const [openModal, setOpenModal] = useState(false);
+  const { employees, loading, addEmployee } = useEmployees(id);
   const { notifyError } = useToastify();
 
-  const handleTitleClick = () => setIsEditing(true);
-  const handleTitleBlur = () => setIsEditing(false);
+  const handleTitleClick = () => setIsEditingTitle(true);
+  const handleTitleBlur = async () => {
+    setIsEditingTitle(false);
+    try {
+      await editTitle(id, editedTitle);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDescriptionClick = () => setIsEditingDescription(true);
+  const handleDescriptionBlur = async () => {
+    setIsEditingDescription(false);
+    try {
+      await editDescription(id, editedDescription);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
 
@@ -111,57 +155,28 @@ const OrgCard = (props: OrgCardProps) => {
         notifyError("No se pueden agregar más de 3 empleados");
         return;
       }
-      const response = await fetch(`${API_URL}/employees`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, nodeId: id }),
-      });
-      const data = await response.json();
-      setEmployees([...employees, { id: data._id, name: data.name }]);
+      addEmployee(name);
     } catch (error) {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${API_URL}/employees/${id}`);
-        const data = await response.json();
-        setEmployees(data.map((emp: any) => ({ id: emp._id, name: emp.name })));
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-        notifyError("Error al cargar empleados");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEmployees();
-  }, [id]);
 
   if (loading) {
     return <OrgCardSkeleton />;
   }
 
   return (
-    <Container id={id?.toString()}>
+    <Container id={id}>
       <StyledCard>
         <CardHeader
           avatar={
-            <Checkbox
-              {...label}
-              checked={checked}
-              onChange={() => setChecked(!checked)}
-            />
+            <Checkbox {...label} checked={checked} onChange={() => setChecked(!checked)} />
           }
           action={<MoreMenu onAddEmployee={handleAddEmployee} />}
           title={<CardH root={root} />}
         />
         <CardContent>
-          {isEditing ? (
+          {isEditingTitle ? (
             <TextField
               value={editedTitle}
               onChange={(e) => setEditedTitle(e.target.value)}
@@ -171,9 +186,22 @@ const OrgCard = (props: OrgCardProps) => {
           ) : (
             <TitleText onClick={handleTitleClick}>{editedTitle}</TitleText>
           )}
-          <Typography variant="body2">
-            Card description goes here. This is a longer description of the card.
-          </Typography>
+          {isEditingDescription ? (
+            <StyledTextarea
+              minRows={3}
+              value={editedDescription}
+              onChange={(e) => setEditedDescription(e.target.value)}
+              onBlur={handleDescriptionBlur}
+              autoFocus
+              style={{
+                maxWidth: "80%",
+              }}
+            />
+          ) : (
+            <DescriptionText variant="body2" onClick={handleDescriptionClick}>
+              {editedDescription || "Sin descripción. Haz clic para editar."}
+            </DescriptionText>
+          )}
           <EmployeeContainer>
             <EmployeeTitle variant="h6" onClick={handleOpenModal}>
               <PeopleIcon /> Empleados ({employees.length} de 3)
@@ -181,7 +209,7 @@ const OrgCard = (props: OrgCardProps) => {
           </EmployeeContainer>
         </CardContent>
         <StyledCardActions>
-          <IconButton aria-label="save" onClick={() => editTitle(id, editedTitle)}>
+          <IconButton aria-label="save" onClick={handleTitleBlur}>
             <SaveIcon />
           </IconButton>
           {!isRoot && (

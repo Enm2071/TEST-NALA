@@ -24,6 +24,7 @@ const App = () => {
     handleAddCard,
     getSortedLevels,
     editNodeTitle,
+    editNodeDescription,
     getOneLevelUp
   } = useOrgCard();
   const sortedLevels = getSortedLevels();
@@ -83,6 +84,8 @@ const App = () => {
                       addChild={handleAddCard}
                       deleteCard={handleOpenModal}
                       editTitle={editNodeTitle}
+                      editDescription={editNodeDescription}
+                      description={node.description}
                       root={getOneLevelUp(node._id!)?.title}
                       isRoot={!!node.root}
                     />

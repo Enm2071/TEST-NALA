@@ -3,6 +3,7 @@ interface CardNode {
   root?: boolean;
   id: number;
   title: string;
+  description?: string;
   children: CardNode[];
 }
 

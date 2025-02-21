@@ -64,6 +64,18 @@ router.put('/:id/:title', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error al actualizar el título del nodo.' });
   }
 });
+
+router.put('/:id/description', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { description } = req.body;
+
+    await orgCardServices.updateNodeDescription(id, description);
+  } catch (error) {
+    console.error('❌ Error al obtener la descripción del nodo:', error);
+    res.status(500).json({ error: 'Error al obtener la descripción del nodo.' });
+  }
+});
  
 router.delete('/delete/:id', async (req: Request, res: Response) => {
   try {

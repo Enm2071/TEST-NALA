@@ -9,7 +9,7 @@ export const createNode = async (data: { id: number; title: string; children?: T
 export const getAllNodes = async () => {
   async function populateChildren(node: any) {
     await node.populate('children');
-    await Promise.all(node.children.map(populateChildren)); // Población recursiva
+    await Promise.all(node.children.map(populateChildren));
     return node;
   }
 
@@ -62,13 +62,16 @@ export const replaceNode = async (id: string, newData: any) => {
     return await populateChildrenRecursively(updatedNode);
 
   } catch (error) {
-    console.error('❌ Error al reemplazar nodo:', error);
     throw error;
   }
 };
 
 export const updateNodeTitle = async (id: string, title: string) => {
   return await CardNode.findByIdAndUpdate(id, { title }, { new: true });
+}
+
+export const updateNodeDescription = async (id: string, description: string) => {
+  return await CardNode.findByIdAndUpdate(id, { description }, { new: true });
 }
 
 export const deleteNode = async (id: string) => {

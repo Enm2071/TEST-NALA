@@ -59,6 +59,20 @@ export function useOrgCard() {
     }
   }
 
+  async function editNodeDescription(id: string, newDescription: string) {
+    try {
+      await fetch(`${API_URL}/orgCards/${id}/description`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: newDescription }),
+      });
+    }
+    catch (error) {
+      console.error('❌ Error al actualizar la descripción del nodo:', error);
+      notifyError('No se pudo actualizar la descripción del nodo.');
+    }
+  }
+
   function handleConfirmDelete() {
     if (cardIdToDelete !== null) {
       handleDeleteCard(cardIdToDelete);
@@ -177,6 +191,7 @@ export function useOrgCard() {
     getSortedLevels,
     setCards,
     editNodeTitle,
+    editNodeDescription,
     getOneLevelUp
   };
 }
