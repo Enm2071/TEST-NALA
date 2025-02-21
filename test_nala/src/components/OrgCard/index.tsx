@@ -3,19 +3,18 @@ import styled from "@emotion/styled";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import CardHeader from "@mui/material/CardHeader";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Typography from "@mui/material/Typography";
-import { Checkbox, IconButton, TextField } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { CardHeader, Checkbox, IconButton, TextField } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import CardH from "./cardHeader";
+import MoreMenu from "../moreMenu";
 
 type OrgCardProps = {
   id: string;
   title: string;
-  addChild: (parentId: string) => void;
+  addChild: (parentId: string, name: string) => void;
   deleteCard: (id: string) => void;
   editTitle: (id: string, title: string) => void;
   root: string | undefined;
@@ -51,31 +50,23 @@ const AddIcon = styled(AddCircleOutlineIcon)`
   font-size: 50px;
 `;
 
-const Title = styled(Typography)`
-  color: #3f51b5;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 1.2;
-  letter-spacing: 0.1em;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  width: 100%;
-  text-align: center;
-  justify-content: center;
-`;
 
 const OrgCard = (props: OrgCardProps) => {
-  const { title, id, addChild, deleteCard, editTitle, root  } = props;
+  const { title, id, addChild, deleteCard, editTitle, root } = props;
   const [checked, setChecked] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
+
   const handleTitleClick = () => {
     setIsEditing(true);
   };
 
   const handleTitleBlur = () => {
     setIsEditing(false);
+  };
+
+  const handleAddEmployee = (name: string) => {
+    addChild(id, name); // 🔹 Agrega el empleado al nodo actual
   };
 
   return (
@@ -89,14 +80,11 @@ const OrgCard = (props: OrgCardProps) => {
               onChange={() => setChecked(!checked)}
             />
           }
+          action={<MoreMenu onAddEmployee={handleAddEmployee} />}
           title={<CardH root={root} />}
-          action={
-            <IconButton aria-label="settings">
-              <MoreVertIcon />
-            </IconButton>
-          }
         />
         <CardContent>
+
           {isEditing ? (
             <TextField
               value={editedTitle}
@@ -133,7 +121,7 @@ const OrgCard = (props: OrgCardProps) => {
         </StyledCardActions>
       </StyledCard>
 
-      <IconButton aria-label="add" onClick={() => addChild(id)}>
+      <IconButton aria-label="add" onClick={() => addChild(id, "Nuevo Empleado")}>
         <AddIcon color="primary" />
       </IconButton>
     </Container>
