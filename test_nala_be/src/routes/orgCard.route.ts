@@ -48,20 +48,27 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
   });
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/delete/:id', async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
-        const deletedNode = await orgCardServices.deleteNode(id);
+      const nodeId = req.params.id;
+  
+      const deleteNodeAndChildren = async (nodeId: string) => {
+        const node = await orgCardServices.getNodeById(nodeId);
+        if (!node) return;
 
-        if (!deletedNode) {
-            throw new Error('Nodo no encontrado.');
-        }
-
-        res.status(200).json(deletedNode);
+        await Promise.all(node.children.map(child  => deleteNodeAndChildren(child._id.toString())));
+  
+        await orgCardServices.findByIdAndDelete(nodeId);
+      };
+  
+      await deleteNodeAndChildren(nodeId);
+  
+      res.status(200).json({ message: 'Nodo y sus hijos eliminados correctamente' });
     } catch (error) {
-        console.error('❌ Error al eliminar el nodo:', error);
-        res.status(500).json({ error: 'Error al eliminar el nodo.' });
+      console.error('Error al eliminar nodo:', error);
+      res.status(500).json({ error: 'No se pudo eliminar el nodo' });
     }
-})
+  });
+  
 
 export default router;

@@ -7,10 +7,10 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1/or
 export function useOrgCard() {
   const [cards, setCards] = useState<CardNode[]>([]);
   const [openModal, setOpenModal] = useState(false);
-  const [cardIdToDelete, setCardIdToDelete] = useState<number | null>(null);
+  const [cardIdToDelete, setCardIdToDelete] = useState<string | null>(null);
   const [tierNames, setTierNames] = useState<{ [level: number]: string }>({});
   const [editingTier, setEditingTier] = useState<number | null>(null);
-  const { notifyError } = useToastify();
+  const { notifyError, notifySuccess } = useToastify();
   const errorNotifiedRef = useRef(false);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export function useOrgCard() {
     setEditingTier(null);
   }
 
-  function handleOpenModal(id: number) {
+  function handleOpenModal(id: string) {
     setCardIdToDelete(id);
     setOpenModal(true);
   }
@@ -64,70 +64,86 @@ export function useOrgCard() {
   function handleConfirmDelete() {
     if (cardIdToDelete !== null) {
       handleDeleteCard(cardIdToDelete);
+
     }
     handleCloseModal();
   }
 
-  function handleAddCard(parentId: number) {
-    setCards(prevCards => {
-      const addCardRecursively = (nodes: CardNode[]): CardNode[] => {
-        return nodes.map(node => {
-          if (node.id === parentId) {
-            if (node.children.length >= 3) {
-              if (!errorNotifiedRef.current) {
-                notifyError('Este padre ya tiene 3 hijos. No se pueden agregar más.');
-                errorNotifiedRef.current = true;
-              }
-              return node;
-            }
-            return {
-              ...node,
-              children: [
-                ...node.children,
-                { id: Date.now(), title: 'New Card', children: [] }
-              ]
-            };
-          }
-          return { ...node, children: addCardRecursively(node.children) };
-        });
-      };
-      return addCardRecursively(prevCards);
-    });
-  }
-
-  useEffect(() => {
-    const hasChilds = cards.some(card => card.children.length > 0);
-  
-    if (hasChilds) {
-      const timeoutId = setTimeout(async () => {
-        try {
-          const rootId = cards.find(card => card.root)?._id;
-          const response = await fetch(`${API_URL}/${rootId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(cards)
-          });
-  
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-
-        } catch (error) {
-          notifyError('Error al actualizar los nodos.');
-        }
-      }, 2000);
-  
-      return () => clearTimeout(timeoutId);
+  function handleAddCard(parentId: string) {
+    let timeoutId: any;
+    if (timeoutId) {
+      clearTimeout(timeoutId);
     }
-  }, [cards]);
+    const currentCards = cards;
 
-  console.log('cards', cards);
+    const addCardRecursively = (nodes: CardNode[]): CardNode[] => {
+      return nodes.map(node => {
+        if (node._id === parentId) {
+          if (node.children.length >= 3) {
+            if (!errorNotifiedRef.current) {
+              notifyError('Este padre ya tiene 3 hijos. No se pueden agregar más.');
+              errorNotifiedRef.current = true;
+            }
+            return node;
+          }
+          errorNotifiedRef.current = false;
+          return {
+            ...node,
+            children: [
+              ...node.children,
+              { id: Date.now(), title: 'New Card', children: [] }
+            ]
+          };
+        }
+        return { ...node, children: addCardRecursively(node.children) };
+      });
+    };
+    const newCards = addCardRecursively(currentCards);
 
-  function handleDeleteCard(cardId: number) {
-    setCards(prevCards => removeCardRecursively(prevCards, cardId));
+    if (!!errorNotifiedRef.current) return;
+    timeoutId = setTimeout(async () => {
+      try {
+        const rootId = cards.find(card => card.root)?._id;
+        const response = await fetch(`${API_URL}/${rootId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newCards)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        setCards(newCards);
+        notifySuccess('Nodo agregado correctamente.');
+      } catch (error) {
+        notifyError('Error al actualizar los nodos.');
+      }
+    }, 500);
+
   }
+
+  async function handleDeleteCard(cardId: string) {
+    try {
+      const response = await fetch(`${API_URL}/delete/${cardId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error en la API: ${response.status}`);
+      }
+  
+      setCards(prevCards => removeCardRecursively(prevCards, cardId));
+      notifySuccess('Nodo y sus hijos eliminados correctamente.');
+    } catch (error) {
+      console.error('❌ Error al eliminar el nodo:', error);
+      notifyError('No se pudo eliminar el nodo.');
+    }
+  }
+  
 
   function getSortedLevels() {
     const levelsMap = new Map<number, CardNode[]>();

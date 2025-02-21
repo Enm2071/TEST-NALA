@@ -73,10 +73,10 @@ const App = () => {
                 <React.Fragment key={node.id}>
                   <div id={`card-${node.id}`} style={{ position: 'relative' }}>
                     <OrgCard
-                      id={node.id}
+                      id={node._id || ''}
                       title={node.title}
-                      addChild={() => handleAddCard(node.id)}
-                      deleteCard={() => handleOpenModal(node.id)}
+                      addChild={() => handleAddCard(node._id || '')}
+                      deleteCard={() => handleOpenModal(node._id || '')}
                     />
                   </div>
                   {index < nodesAtThisLevel.length - 1 &&

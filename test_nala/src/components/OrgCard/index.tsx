@@ -12,7 +12,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 type OrgCardProps = {
-  id: number;
+  id: string;
   title: string;
   addChild: (parentId: number) => void;
   deleteCard: (id: number) => void;
@@ -49,7 +49,7 @@ const AddIcon = styled(AddCircleOutlineIcon)`
 `;
 
 const OrgCard = (props: OrgCardProps) => {
-  const { title, id, addChild, deleteCard } = props;
+  const { title, id, addChild, deleteCard  } = props;
   const [checked, setChecked] = React.useState(true);
   const [isEditing, setIsEditing] = React.useState(false);
   const [editedTitle, setEditedTitle] = React.useState(title);

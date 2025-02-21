@@ -25,9 +25,9 @@ function assignLevels(nodes: CardNode[], level: number, levelsMap: Map<number, C
   }
 }
 
-function removeCardRecursively(nodes: CardNode[], cardId: number): CardNode[] {
+function removeCardRecursively(nodes: CardNode[], cardId: string): CardNode[] {
   return nodes
-    .filter(node => node.id !== cardId) // Filtra el nodo que se quiere eliminar
+    .filter(node => node._id !== cardId)
     .map(node => ({
       ...node,
       children: removeCardRecursively(node.children, cardId),
