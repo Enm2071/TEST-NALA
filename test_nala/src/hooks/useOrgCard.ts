@@ -149,10 +149,23 @@ export function useOrgCard() {
     return Array.from(levelsMap.entries()).sort(([a], [b]) => a - b);
   }
 
-  function getOneLevelUpTitle(level: number) {
-    if (level === 0) return '';
-    return cards.find(card => card.id === level)?.title;
+  console.log('cards', cards);
+
+  function getOneLevelUp(nodeId: string): any | null {
+    function findParent(currentNodes: any[]): any | null {
+      for (const node of currentNodes) {
+        if (node.children.some((child: any) => child._id === nodeId)) {
+          return node;
+        }
+        const foundInChildren = findParent(node.children);
+        if (foundInChildren) return foundInChildren;
+      }
+      return null;
+    }
+  
+    return findParent(cards);
   }
+  
 
   return {
     cards,
@@ -166,6 +179,6 @@ export function useOrgCard() {
     getSortedLevels,
     setCards,
     editNodeTitle,
-    getOneLevelUpTitle
+    getOneLevelUp
   };
 }

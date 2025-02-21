@@ -10,6 +10,7 @@ import { Checkbox, IconButton, TextField } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SaveIcon from "@mui/icons-material/Save";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import CardH from "./cardHeader";
 
 type OrgCardProps = {
   id: string;
@@ -56,6 +57,12 @@ const Title = styled(Typography)`
   font-weight: bold;
   line-height: 1.2;
   letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  text-align: center;
+  justify-content: center;
 `;
 
 const OrgCard = (props: OrgCardProps) => {
@@ -82,7 +89,7 @@ const OrgCard = (props: OrgCardProps) => {
               onChange={() => setChecked(!checked)}
             />
           }
-          title={<Title>Responde a {root}</Title>}
+          title={<CardH root={root} />}
           action={
             <IconButton aria-label="settings">
               <MoreVertIcon />

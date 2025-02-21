@@ -24,7 +24,7 @@ const App = () => {
     handleAddCard,
     getSortedLevels,
     editNodeTitle,
-    getOneLevelUpTitle
+    getOneLevelUp
   } = useOrgCard();
   const sortedLevels = getSortedLevels();
   const numLevels = sortedLevels.length;
@@ -35,7 +35,6 @@ const App = () => {
     handleStartEditingTier,
     handleStopEditingTier
   } = useTiers(numLevels);
-
 
   const maxNodesInAnyLevel = sortedLevels.reduce((acc, [_, nodes]) => Math.max(acc, nodes.length), 0);
   const dynamicWidth = maxNodesInAnyLevel * (CARD_WIDTH + HORIZONTAL_GAP) + EXTRA_OFFSET;
@@ -77,14 +76,14 @@ const App = () => {
             <div className="level-row">
               {nodesAtThisLevel.map((node, index) => (
                 <React.Fragment key={node.id}>
-                  <div id={`card-${node.id}`} style={{ position: 'relative' }}>
+                  <div id={`card-${node._id}`} style={{ position: 'relative', textAlign: 'center' }}>
                     <OrgCard
                       id={node._id!}
                       title={node.title}
                       addChild={handleAddCard}
                       deleteCard={handleOpenModal}
                       editTitle={editNodeTitle}
-                      root={getOneLevelUpTitle(level)}
+                      root={getOneLevelUp(node._id!)?.title}
                     />
                   </div>
                   {index < nodesAtThisLevel.length - 1 &&
