@@ -4,6 +4,7 @@ import cors from 'cors';
 import connectDB from './lib/config';
 import orgCardsRoutes from './routes/orgCard.route';
 import tiersRoutes from './routes/tiers.route';
+import employeesRoutes from './routes/employee.route';
 
 dotenv.config();
 connectDB();
@@ -31,6 +32,7 @@ app.use(express.json());
 
 app.use('/api/v1/orgCards', orgCardsRoutes);
 app.use('/api/v1/tiers', tiersRoutes);
+app.use('/api/v1/employees', employeesRoutes);
 
 
 app.listen(PORT, () => {

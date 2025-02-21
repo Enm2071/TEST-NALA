@@ -66,7 +66,7 @@ const OrgCard = (props: OrgCardProps) => {
   };
 
   const handleAddEmployee = (name: string) => {
-    addChild(id, name); // 🔹 Agrega el empleado al nodo actual
+    addChild(id, name);
   };
 
   return (
