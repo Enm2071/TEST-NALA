@@ -12,6 +12,7 @@ import CardH from "./cardHeader";
 import MoreMenu from "../moreMenu";
 import { API_URL } from "../../libs/config";
 import { useToastify } from "../../hooks/useToastify";
+import OrgCardSkeleton from "./skeleton";
 
 type OrgCardProps = {
   id: string;
@@ -126,7 +127,7 @@ const OrgCard = (props: OrgCardProps) => {
   }, []);
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return <OrgCardSkeleton />
   }
 
 
