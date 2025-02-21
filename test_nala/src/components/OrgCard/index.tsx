@@ -14,8 +14,8 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 type OrgCardProps = {
   id: string;
   title: string;
-  addChild: (parentId: number) => void;
-  deleteCard: (id: number) => void;
+  addChild: (parentId: string) => void;
+  deleteCard: (id: string) => void;
 };
 
 const label = { inputProps: { "aria-label": "Checkbox demo" } };

@@ -143,7 +143,6 @@ export function useOrgCard() {
       notifyError('No se pudo eliminar el nodo.');
     }
   }
-  
 
   function getSortedLevels() {
     const levelsMap = new Map<number, CardNode[]>();
