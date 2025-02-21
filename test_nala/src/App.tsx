@@ -45,7 +45,7 @@ const App = () => {
   const zoomIn = () => setScale(prev => prev * 1.2);
   const zoomOut = () => setScale(prev => prev / 1.2);
   const resetTransform = () => setScale(1);
-
+  
   return (
     <div>
       <ZoomControls zoomIn={zoomIn} zoomOut={zoomOut} resetTransform={resetTransform} />

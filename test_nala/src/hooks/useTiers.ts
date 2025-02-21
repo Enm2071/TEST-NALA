@@ -45,8 +45,6 @@ const useTiers = (numLevels: number) => {
         const tiersLevels = tierNames.length;
 
         if (tiersLevels === numLevels) return;
-
-        console.log('numLevels:', numLevels, tiersLevels);
         const removeTiers = async (level: number) => {
             const tier = tierNames.find(tier => tier.level === level);
             if (!tier) return;

@@ -12,7 +12,7 @@ export function useOrgCard() {
   useEffect(() => {
     errorNotifiedRef.current = false;
   });
-
+  console.log('cards', cards);
   useEffect(() => {
     const fetchNodes = async () => {
       try {
@@ -90,7 +90,7 @@ export function useOrgCard() {
             ...node,
             children: [
               ...node.children,
-              { id: Date.now(), title: 'New Card', children: [] }
+              { id: Date.now(), title: 'Nueva Posición', children: [] }
             ]
           };
         }
@@ -114,8 +114,10 @@ export function useOrgCard() {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
-        setCards(newCards);
+        const resData = await response.json();
+        const currentCards = cards;
+        currentCards[0] = resData;
+        setCards(() => [...currentCards]);
         notifySuccess('Nodo agregado correctamente.');
       } catch (error) {
         notifyError('Error al actualizar los nodos.');

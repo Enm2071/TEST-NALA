@@ -54,7 +54,6 @@ const OrgCard = (props: OrgCardProps) => {
   const [checked, setChecked] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
-
   const handleTitleClick = () => {
     setIsEditing(true);
   };
