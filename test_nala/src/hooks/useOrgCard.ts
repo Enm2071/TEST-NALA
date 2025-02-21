@@ -12,7 +12,6 @@ export function useOrgCard() {
   useEffect(() => {
     errorNotifiedRef.current = false;
   });
-  console.log('cards', cards);
   useEffect(() => {
     const fetchNodes = async () => {
       try {
