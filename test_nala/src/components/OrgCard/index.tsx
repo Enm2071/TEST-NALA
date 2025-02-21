@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -16,6 +16,7 @@ type OrgCardProps = {
   title: string;
   addChild: (parentId: string) => void;
   deleteCard: (id: string) => void;
+  editTitle: (id: string, title: string) => void;
 };
 
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -49,10 +50,10 @@ const AddIcon = styled(AddCircleOutlineIcon)`
 `;
 
 const OrgCard = (props: OrgCardProps) => {
-  const { title, id, addChild, deleteCard  } = props;
-  const [checked, setChecked] = React.useState(true);
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [editedTitle, setEditedTitle] = React.useState(title);
+  const { title, id, addChild, deleteCard, editTitle  } = props;
+  const [checked, setChecked] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(title);
 
   const handleTitleClick = () => {
     setIsEditing(true);
@@ -63,7 +64,7 @@ const OrgCard = (props: OrgCardProps) => {
   };
 
   return (
-    <Container id={id.toString()}>
+    <Container id={id?.toString()}>
       <StyledCard>
         <CardHeader
           avatar={
@@ -107,7 +108,7 @@ const OrgCard = (props: OrgCardProps) => {
           </Typography>
         </CardContent>
         <StyledCardActions>
-          <IconButton aria-label="save">
+          <IconButton aria-label="save" onClick={() => editTitle(id, editedTitle)}>
             <SaveIcon />
           </IconButton>
           <IconButton aria-label="delete" onClick={() => deleteCard(id)}>

@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './lib/config';
 import orgCardsRoutes from './routes/orgCard.route';
+import tiersRoutes from './routes/tiers.route';
 
 dotenv.config();
 connectDB();
@@ -20,7 +21,7 @@ const corsOptions: cors.CorsOptions = {
       callback(new Error('No autorizado por CORS'));
     }
   },
-  credentials: true, // Permite enviar cookies o encabezados de autenticación
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -29,6 +30,7 @@ app.use(express.json());
 
 
 app.use('/api/v1/orgCards', orgCardsRoutes);
+app.use('/api/v1/tiers', tiersRoutes);
 
 
 app.listen(PORT, () => {

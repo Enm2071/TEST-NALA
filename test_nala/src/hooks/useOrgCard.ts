@@ -1,18 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { CardNode, assignLevels, removeCardRecursively } from '../helpers/cards';
 import { useToastify } from './useToastify';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1/orgCards';
+import { API_URL } from '../libs/config';
 
 export function useOrgCard() {
   const [cards, setCards] = useState<CardNode[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [cardIdToDelete, setCardIdToDelete] = useState<string | null>(null);
-  const [tierNames, setTierNames] = useState<{ [level: number]: string }>({});
-  const [editingTier, setEditingTier] = useState<number | null>(null);
-  const { notifyError, notifySuccess } = useToastify();
   const errorNotifiedRef = useRef(false);
-
+  const { notifyError, notifySuccess } = useToastify();
   useEffect(() => {
     errorNotifiedRef.current = false;
   });
@@ -20,7 +16,7 @@ export function useOrgCard() {
   useEffect(() => {
     const fetchNodes = async () => {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(`${API_URL}/orgCards`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -35,22 +31,6 @@ export function useOrgCard() {
     fetchNodes();
   }, []);
 
-  function getTierName(level: number) {
-    return tierNames[level] ?? `TIER ${level + 1}`;
-  }
-
-  function handleTierNameChange(level: number, newName: string) {
-    setTierNames(prev => ({ ...prev, [level]: newName }));
-  }
-
-  function handleStartEditingTier(level: number) {
-    setEditingTier(level);
-  }
-
-  function handleStopEditingTier() {
-    setEditingTier(null);
-  }
-
   function handleOpenModal(id: string) {
     setCardIdToDelete(id);
     setOpenModal(true);
@@ -59,6 +39,25 @@ export function useOrgCard() {
   function handleCloseModal() {
     setOpenModal(false);
     setCardIdToDelete(null);
+  }
+
+  async function editNodeTitle(id: string, newTitle: string) {
+    try {
+      const response = await fetch(`${API_URL}/orgCards/${id}/${newTitle}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error en la API: ${response.status}`);
+      }
+
+      notifySuccess('Título actualizado correctamente.');
+    }
+    catch (error) {
+      console.error('❌ Error al actualizar el título del nodo:', error);
+      notifyError('No se pudo actualizar el título del nodo.');
+    }
   }
 
   function handleConfirmDelete() {
@@ -104,7 +103,7 @@ export function useOrgCard() {
     timeoutId = setTimeout(async () => {
       try {
         const rootId = cards.find(card => card.root)?._id;
-        const response = await fetch(`${API_URL}/${rootId}`, {
+        const response = await fetch(`${API_URL}/orgCards/${rootId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
@@ -127,7 +126,7 @@ export function useOrgCard() {
 
   async function handleDeleteCard(cardId: string) {
     try {
-      const response = await fetch(`${API_URL}/delete/${cardId}`, {
+      const response = await fetch(`${API_URL}/orgCards/delete/${cardId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -154,18 +153,13 @@ export function useOrgCard() {
     cards,
     openModal,
     cardIdToDelete,
-    tierNames,
-    editingTier,
-    getTierName,
-    handleTierNameChange,
-    handleStartEditingTier,
-    handleStopEditingTier,
     handleOpenModal,
     handleCloseModal,
     handleConfirmDelete,
     handleAddCard,
     handleDeleteCard,
     getSortedLevels,
-    setCards
+    setCards,
+    editNodeTitle,
   };
 }

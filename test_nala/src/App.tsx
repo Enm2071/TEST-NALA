@@ -13,21 +13,26 @@ import {
   HORIZONTAL_GAP,
   VERTICAL_MARGIN_BETWEEN_TIERS
 } from './constant/card';
+import useTiers from './hooks/useTiers';
 
 const App = () => {
   const {
     openModal,
-    editingTier,
-    getTierName,
-    handleTierNameChange,
-    handleStartEditingTier,
-    handleStopEditingTier,
     handleOpenModal,
     handleCloseModal,
     handleConfirmDelete,
     handleAddCard,
-    getSortedLevels
+    getSortedLevels,
+    editNodeTitle
   } = useOrgCard();
+
+  const {
+    editingTier,
+    getTierTitle,
+    handleTierNameChange,
+    handleStartEditingTier,
+    handleStopEditingTier
+  } = useTiers();
 
   const sortedLevels = getSortedLevels();
   const numLevels = sortedLevels.length;
@@ -59,13 +64,13 @@ const App = () => {
             <div className="tier-label">
               {editingTier === level ? (
                 <TextField
-                  value={getTierName(level)}
+                  value={getTierTitle(level)}
                   onChange={e => handleTierNameChange(level, e.target.value)}
                   onBlur={handleStopEditingTier}
                   autoFocus
                 />
               ) : (
-                <p onClick={() => handleStartEditingTier(level)}>{getTierName(level)}</p>
+                <p onClick={() => handleStartEditingTier(level)}>{getTierTitle(level)}</p>
               )}
             </div>
             <div className="level-row">
@@ -73,10 +78,11 @@ const App = () => {
                 <React.Fragment key={node.id}>
                   <div id={`card-${node.id}`} style={{ position: 'relative' }}>
                     <OrgCard
-                      id={node._id || ''}
+                      id={node._id!}
                       title={node.title}
-                      addChild={() => handleAddCard(node._id || '')}
-                      deleteCard={() => handleOpenModal(node._id || '')}
+                      addChild={handleAddCard}
+                      deleteCard={handleOpenModal}
+                      editTitle={editNodeTitle}
                     />
                   </div>
                   {index < nodesAtThisLevel.length - 1 &&
