@@ -17,6 +17,7 @@ type OrgCardProps = {
   addChild: (parentId: string) => void;
   deleteCard: (id: string) => void;
   editTitle: (id: string, title: string) => void;
+  root: string | undefined;
 };
 
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -49,8 +50,16 @@ const AddIcon = styled(AddCircleOutlineIcon)`
   font-size: 50px;
 `;
 
+const Title = styled(Typography)`
+  color: #3f51b5;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+`;
+
 const OrgCard = (props: OrgCardProps) => {
-  const { title, id, addChild, deleteCard, editTitle  } = props;
+  const { title, id, addChild, deleteCard, editTitle, root  } = props;
   const [checked, setChecked] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
@@ -73,6 +82,7 @@ const OrgCard = (props: OrgCardProps) => {
               onChange={() => setChecked(!checked)}
             />
           }
+          title={<Title>Responde a {root}</Title>}
           action={
             <IconButton aria-label="settings">
               <MoreVertIcon />

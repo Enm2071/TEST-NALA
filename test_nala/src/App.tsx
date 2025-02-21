@@ -23,7 +23,8 @@ const App = () => {
     handleConfirmDelete,
     handleAddCard,
     getSortedLevels,
-    editNodeTitle
+    editNodeTitle,
+    getOneLevelUpTitle
   } = useOrgCard();
   const sortedLevels = getSortedLevels();
   const numLevels = sortedLevels.length;
@@ -45,7 +46,7 @@ const App = () => {
   const zoomIn = () => setScale(prev => prev * 1.2);
   const zoomOut = () => setScale(prev => prev / 1.2);
   const resetTransform = () => setScale(1);
-  
+
   return (
     <div>
       <ZoomControls zoomIn={zoomIn} zoomOut={zoomOut} resetTransform={resetTransform} />
@@ -83,6 +84,7 @@ const App = () => {
                       addChild={handleAddCard}
                       deleteCard={handleOpenModal}
                       editTitle={editNodeTitle}
+                      root={getOneLevelUpTitle(level)}
                     />
                   </div>
                   {index < nodesAtThisLevel.length - 1 &&

@@ -84,7 +84,6 @@ export function useOrgCard() {
             }
             return node;
           }
-          errorNotifiedRef.current = false;
           return {
             ...node,
             children: [
@@ -150,6 +149,11 @@ export function useOrgCard() {
     return Array.from(levelsMap.entries()).sort(([a], [b]) => a - b);
   }
 
+  function getOneLevelUpTitle(level: number) {
+    if (level === 0) return '';
+    return cards.find(card => card.id === level)?.title;
+  }
+
   return {
     cards,
     openModal,
@@ -162,5 +166,6 @@ export function useOrgCard() {
     getSortedLevels,
     setCards,
     editNodeTitle,
+    getOneLevelUpTitle
   };
 }
