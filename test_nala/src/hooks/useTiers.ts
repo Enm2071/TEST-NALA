@@ -9,13 +9,11 @@ type Tiers = {
 }
 
 
-const useTiers = () => {
+const useTiers = (numLevels: number) => {
     const [tierNames, setTierNames] = useState<Tiers[]>([{ _id: '', title: 'Tier 1', level: 0 }]);
     const [editingTier, setEditingTier] = useState<number | null>(null);
     const { notifyError } = useToastify();
-    console.log('tierNames', tierNames);
     function getTierTitle(level: number) {
-        console.log('lvl name', level, tierNames[level]?.title, tierNames[level]?.title ?? `Tier ${level}`);
         const tier = tierNames.find(tier => tier.level === level);
         return tier?.title ?? `Tier ${level}`;
     }
@@ -42,16 +40,50 @@ const useTiers = () => {
         fetchTierNames();
     }, []);
 
+    useEffect(() => {
+        if (numLevels === 0) return;
+        const tiersLevels = tierNames.length;
+
+        if (tiersLevels === numLevels) return;
+
+        console.log('numLevels:', numLevels, tiersLevels);
+        const removeTiers = async (level: number) => {
+            const tier = tierNames.find(tier => tier.level === level);
+            if (!tier) return;
+            if (!tier._id) return;
+            try {
+                const response = await fetch(`${API_URL}/tiers/${tier._id}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la API: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('❌ Error deleting tier:', error);
+                notifyError('Error deleting tier.');
+
+            }
+
+        }
+
+        if (numLevels < tiersLevels) {
+            const lastTier = tierNames[tierNames.length - 1];
+            removeTiers(lastTier.level);
+            return;
+        }
+
+
+    }, [numLevels]);
+
     function handleTierNameChange(level: number, newName: string) {
         const tier = tierNames.find(tier => tier.level === level);
         if (!tier) {
-            console.log('no created');
             setTierNames([...tierNames, { _id: '', title: newName, level }]);
             return;
         }
         setTierNames(tierNames.map(tier => {
             if (tier.level === level) {
-                console.log('tier inside', tier);
                 return { ...tier, title: newName };
             }
             return tier;

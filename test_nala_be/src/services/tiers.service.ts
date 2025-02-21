@@ -1,8 +1,8 @@
 import Tiers from '../models/tiers.model';
 
-export const createTier = async (data: { 
+export const createTier = async (data: {
     title: string;
-    level: number;  
+    level: number;
 }) => {
 
     const newTier = {
@@ -25,4 +25,8 @@ export const getTierById = async (id: string) => {
 
 export const updateTier = async (id: string, title: string) => {
     return await Tiers.findByIdAndUpdate(id, { title }, { new: true });
+}
+
+export const deleteTier = async (id: string) => {
+    return await Tiers.findByIdAndDelete(id);
 }

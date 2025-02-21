@@ -25,17 +25,17 @@ const App = () => {
     getSortedLevels,
     editNodeTitle
   } = useOrgCard();
-
+  const sortedLevels = getSortedLevels();
+  const numLevels = sortedLevels.length;
   const {
     editingTier,
     getTierTitle,
     handleTierNameChange,
     handleStartEditingTier,
     handleStopEditingTier
-  } = useTiers();
+  } = useTiers(numLevels);
 
-  const sortedLevels = getSortedLevels();
-  const numLevels = sortedLevels.length;
+
   const maxNodesInAnyLevel = sortedLevels.reduce((acc, [_, nodes]) => Math.max(acc, nodes.length), 0);
   const dynamicWidth = maxNodesInAnyLevel * (CARD_WIDTH + HORIZONTAL_GAP) + EXTRA_OFFSET;
   const dynamicHeight = numLevels * (CARD_HEIGHT + VERTICAL_MARGIN_BETWEEN_TIERS) + EXTRA_OFFSET;

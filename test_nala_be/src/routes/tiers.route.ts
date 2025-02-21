@@ -47,4 +47,15 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 });
 
+router.delete('/:id', async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        await TierServices.deleteTier(id);
+        res.status(204).end();
+    } catch (error) {
+        console.error('❌ Error al eliminar el tier:', error);
+        res.status(500).json({ error: 'Error al eliminar el tier.' });
+    }
+});
+
 export default router;
