@@ -149,8 +149,6 @@ export function useOrgCard() {
     return Array.from(levelsMap.entries()).sort(([a], [b]) => a - b);
   }
 
-  console.log('cards', cards);
-
   function getOneLevelUp(nodeId: string): any | null {
     function findParent(currentNodes: any[]): any | null {
       for (const node of currentNodes) {

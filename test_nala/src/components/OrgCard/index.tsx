@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -10,6 +10,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import CardH from "./cardHeader";
 import MoreMenu from "../moreMenu";
+import { API_URL } from "../../libs/config";
 
 type OrgCardProps = {
   id: string;
@@ -65,9 +66,31 @@ const OrgCard = (props: OrgCardProps) => {
     setIsEditing(false);
   };
 
-  const handleAddEmployee = (name: string) => {
-    addChild(id, name);
+  const handleAddEmployee = async (name: string) => {
+    try {
+      const response = await fetch(`${API_URL}/employees`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, nodeId: id }),
+      });
+      const data = await response.json();
+      console.log(data);
+    }
+    catch (error) {
+      console.error(error);
+    }
   };
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      const response = await fetch(`${API_URL}/employees/${id}`); 
+      const data = await response.json();
+      console.log(data);
+    };
+    fetchEmployees();
+  }, []);
 
   return (
     <Container id={id?.toString()}>

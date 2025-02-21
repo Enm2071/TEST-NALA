@@ -9,7 +9,6 @@ export const createTier = async (data: {
         title: data.title,
         level: data.level
     }
-    console.log('newTier', newTier);
     const tier = new Tiers(newTier);
 
     return await tier.save();

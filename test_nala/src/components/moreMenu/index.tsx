@@ -21,7 +21,7 @@ const MoreMenu: React.FC<MoreMenuProps> = ({ onAddEmployee }) => {
 
   const handleOpenModal = () => {
     setOpenModal(true);
-    handleCloseMenu(); // Cierra el menú al abrir el modal
+    handleCloseMenu();
   };
 
   return (
