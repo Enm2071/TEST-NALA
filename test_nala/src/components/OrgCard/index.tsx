@@ -38,6 +38,7 @@ const Container = styled.div`
 
 const StyledCard = styled(Card)`
   min-width: 325px;
+  max-width: 380px;
   min-height: 350px;
   display: flex;
   flex-direction: column;
@@ -71,10 +72,23 @@ const EmployeeTitle = styled(Typography)`
   }
 `;
 
-type Employee = {
-  id: string;
-  name: string;
-};
+const EmployeeContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px;
+  margin-top: 20px;
+`;
+
+const TitleText = styled(Typography)`
+  color: #6c757d;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+`;
 
 const OrgCard = (props: OrgCardProps) => {
   const { title, id, addChild, deleteCard, editTitle, root, isRoot } = props;
@@ -82,7 +96,7 @@ const OrgCard = (props: OrgCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
   const [loading, setLoading] = useState(false);
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employees, setEmployees] = useState<{ id: string; name: string }[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const { notifyError } = useToastify();
 
@@ -99,9 +113,7 @@ const OrgCard = (props: OrgCardProps) => {
       }
       const response = await fetch(`${API_URL}/employees`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, nodeId: id }),
       });
       const data = await response.json();
@@ -117,11 +129,7 @@ const OrgCard = (props: OrgCardProps) => {
         setLoading(true);
         const response = await fetch(`${API_URL}/employees/${id}`);
         const data = await response.json();
-        const dataTransformed = data.map((employee: any) => ({
-          id: employee._id,
-          name: employee.name,
-        }));
-        setEmployees(dataTransformed);
+        setEmployees(data.map((emp: any) => ({ id: emp._id, name: emp.name })));
         setLoading(false);
       } catch (error) {
         console.error(error);
@@ -161,45 +169,26 @@ const OrgCard = (props: OrgCardProps) => {
               autoFocus
             />
           ) : (
-            <Typography
-              gutterBottom
-              sx={{
-                color: "text.secondary",
-                fontSize: 24,
-                fontWeight: "bold",
-                lineHeight: 1.2,
-                letterSpacing: "0.1em",
-              }}
-              onClick={handleTitleClick}
-            >
-              {editedTitle}
-            </Typography>
+            <TitleText onClick={handleTitleClick}>{editedTitle}</TitleText>
           )}
-          <Typography variant="body2" sx={{ maxWidth: 300 }}>
+          <Typography variant="body2">
             Card description goes here. This is a longer description of the card.
           </Typography>
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              padding: "10px",
-              marginTop: "20px",
-            }}
-          >
+          <EmployeeContainer>
             <EmployeeTitle variant="h6" onClick={handleOpenModal}>
               <PeopleIcon /> Empleados ({employees.length} de 3)
             </EmployeeTitle>
-          </div>
+          </EmployeeContainer>
         </CardContent>
         <StyledCardActions>
           <IconButton aria-label="save" onClick={() => editTitle(id, editedTitle)}>
             <SaveIcon />
           </IconButton>
-          {!isRoot ? <IconButton aria-label="delete" onClick={() => deleteCard(id)}>
-            <DeleteIcon />
-          </IconButton> : null}
+          {!isRoot && (
+            <IconButton aria-label="delete" onClick={() => deleteCard(id)}>
+              <DeleteIcon />
+            </IconButton>
+          )}
         </StyledCardActions>
       </StyledCard>
 
